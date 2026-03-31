@@ -1,25 +1,20 @@
 package com.example.demo.dto.request;
 
-import com.example.demo.entity.OrderItem;
-import jakarta.validation.Valid;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateOrderRequest {
-
+public class OrderItemDTO {
     @NotEmpty
-    private String customerId;
-
-    @NotEmpty
-    @Valid
-    private List<OrderItemDTO> orderItems;
+    private String productId;
+    @NotNull
+    private Integer quantity;
 }

@@ -38,7 +38,7 @@ public class BaseEntity implements Serializable {
     private String lastModifiedBy;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean isDeleted = false;
 
 }
 
