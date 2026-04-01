@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.clients.dto.response.ProductRes;
+import com.example.demo.clients.dto.response.PromotionResponse;
 import com.example.demo.dto.request.CreateOrderRequest;
 import com.example.demo.dto.response.OrderResponse;
 import com.example.demo.service.OrderService;
@@ -18,9 +20,9 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @PostMapping
-    public ResponseEntity<OrderResponse> create(@Valid @RequestBody CreateOrderRequest request ){
-        return ResponseEntity.ok(orderService.create(request));
+    @PostMapping("/{code}")
+    public ResponseEntity<OrderResponse> create(@Valid @RequestBody CreateOrderRequest request, @PathVariable String code){
+        return ResponseEntity.ok(orderService.create(request, code));
     }
 
 }

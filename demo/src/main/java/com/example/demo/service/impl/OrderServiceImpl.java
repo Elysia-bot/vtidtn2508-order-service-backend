@@ -1,8 +1,11 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.clients.ProductClient;
+import com.example.demo.clients.PromotionClient;
 import com.example.demo.clients.dto.request.ProductFilter;
+import com.example.demo.clients.dto.request.PromotionFind;
 import com.example.demo.clients.dto.response.ProductRes;
+import com.example.demo.clients.dto.response.PromotionResponse;
 import com.example.demo.common.OrderStatus;
 import com.example.demo.dto.request.CreateOrderRequest;
 import com.example.demo.dto.request.OrderItemDTO;
@@ -33,10 +36,20 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
     private final ProductClient productClient;
+    private final PromotionClient promotionClient;
 
     @Override
     @Transactional
-    public OrderResponse create(CreateOrderRequest request) {
+    public OrderResponse create(CreateOrderRequest request, String code) {
+
+        PromotionFind promotionFind = new PromotionFind();
+        promotionFind.setCode(code);
+
+        PromotionResponse promotion = promotionClient.find(promotionFind);
+
+        if (promotion == null){
+            throw new ApplicationException("khong tim thay ma giam gia");
+        }
 
         //nhận order item từ request và đưa các id của item vào list
         List<OrderItemDTO> orderItemDTOs = request.getOrderItems();
@@ -95,8 +108,21 @@ public class OrderServiceImpl implements OrderService {
             totalAmount += product.getPrice() * orderItemDTO.getQuantity();
         }
 
+
+        if(totalAmount >= promotion.getMinOrderValue()) {
+            if ("PERCENT".equals(promotion.getDiscountType())) {
+                totalAmount = totalAmount - totalAmount * promotion.getDiscountValue()/100;
+            } else if ("AMOUNT".equals(promotion.getDiscountType())) {
+                totalAmount -= promotion.getDiscountValue();
+            }
+        }
+
         //update order
         //lưu order item vao repo
+
+        if(totalAmount < 0){
+            throw new ApplicationException("bug when calculate price");
+        }
 
         orderItemRepository.saveAll(orderItems);
         savedOrder.setTotalAmount(totalAmount);
